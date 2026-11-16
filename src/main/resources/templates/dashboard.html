@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Merchant dashboard')}"></head>
+<body data-page="dashboard">
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="container wide">
+  <div id="gate" class="card" role="alert" hidden></div>
+  <div id="dash" hidden>
+    <div class="page-head">
+      <div>
+        <h1>Merchant dashboard</h1>
+        <p class="muted" id="range-label" aria-live="polite"></p>
+      </div>
+      <form class="range-form" id="range-form">
+        <div class="field"><label for="from">From</label><input id="from" type="date" required></div>
+        <div class="field"><label for="to">To</label><input id="to" type="date" required></div>
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </form>
+    </div>
+
+    <section class="kpi-grid" id="kpis" aria-label="Key metrics" aria-live="polite" aria-busy="true"></section>
+
+    <div class="grid-main">
+      <section class="card" aria-labelledby="rev-h">
+        <div class="card-head">
+          <h2 id="rev-h">Revenue over time</h2>
+          <span class="muted small">Large points are anomalies. Click one to explain it.</span>
+        </div>
+        <div class="chart-box tall"><canvas id="chart-revenue" role="img" aria-label="Daily revenue line chart"></canvas></div>
+        <div id="anomaly-list" class="chip-row" aria-label="Detected anomalies"></div>
+        <div id="revenue-msg" class="alert" role="alert" hidden></div>
+      </section>
+      <aside class="card" id="explain-panel" aria-labelledby="explain-h" aria-live="polite">
+        <h2 id="explain-h">Anomaly explanation</h2>
+        <p class="muted" id="explain-body">Select an anomaly on the revenue chart to see why it happened.</p>
+      </aside>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-labelledby="cat-h">
+        <h2 id="cat-h">Sales by category</h2>
+        <div class="chart-box"><canvas id="chart-category" role="img" aria-label="Sales by category doughnut chart"></canvas></div>
+        <div id="category-msg" class="alert" role="alert" hidden></div>
+      </section>
+      <section class="card" aria-labelledby="top-h">
+        <h2 id="top-h">Top 10 products</h2>
+        <div class="chart-box"><canvas id="chart-top" role="img" aria-label="Top products by revenue bar chart"></canvas></div>
+        <div id="top-msg" class="alert" role="alert" hidden></div>
+      </section>
+    </div>
+
+    <div class="grid-2">
+      <section class="card" aria-labelledby="low-h">
+        <h2 id="low-h">Low stock</h2>
+        <div id="low-stock" aria-live="polite"><p class="muted">Loading...</p></div>
+      </section>
+      <section class="card" aria-labelledby="brief-h">
+        <div class="card-head">
+          <h2 id="brief-h">Weekly AI briefing</h2>
+          <button type="button" class="btn btn-ghost btn-sm" id="brief-regen">Regenerate</button>
+        </div>
+        <div id="briefing" aria-live="polite" aria-busy="true"><p class="muted">Loading...</p></div>
+      </section>
+    </div>
+
+    <section class="card" aria-labelledby="ask-h">
+      <h2 id="ask-h">Ask your store</h2>
+      <form id="ask-form" class="ask-form">
+        <div class="field grow">
+          <label for="ask-q">Question about your sales data</label>
+          <input id="ask-q" type="text" maxlength="300" placeholder="e.g. Which category dropped the most this month?" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="ask-btn">Ask</button>
+      </form>
+      <div class="chip-row" id="examples" aria-label="Example questions">
+        <button type="button" class="chip" data-q="Which category dropped the most this month?">Which category dropped the most this month?</button>
+        <button type="button" class="chip" data-q="What were my top 5 products last week?">What were my top 5 products last week?</button>
+        <button type="button" class="chip" data-q="How did revenue trend over the last 90 days?">How did revenue trend over the last 90 days?</button>
+        <button type="button" class="chip" data-q="Which customers spent the most?">Which customers spent the most?</button>
+      </div>
+      <div id="ask-result" aria-live="polite" aria-busy="false"></div>
+    </section>
+  </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js" crossorigin="anonymous"></script>
+<script type="module" th:src="@{/js/dashboard.js}"></script>
+</body>
+</html>

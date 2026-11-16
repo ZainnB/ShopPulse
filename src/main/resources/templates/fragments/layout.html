@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title th:text="${title} + ' | ShopPulse'">ShopPulse</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+<header class="site-header" th:fragment="nav">
+  <a class="skip-link" href="#main">Skip to content</a>
+  <div class="container nav-inner">
+    <a class="brand" th:href="@{/}" aria-label="ShopPulse home"><span class="brand-mark" aria-hidden="true"></span>ShopPulse</a>
+    <nav class="nav-links" aria-label="Primary">
+      <a th:href="@{/}" data-nav="storefront">Shop</a>
+      <a th:href="@{/cart}" data-nav="cart">Cart <span id="cart-count" class="pill" hidden>0</span></a>
+      <a th:href="@{/orders}" data-nav="orders">Orders</a>
+      <a th:href="@{/merchant/dashboard}" data-nav="dashboard" id="nav-dashboard" hidden>Dashboard</a>
+    </nav>
+    <div class="nav-user" id="nav-user" aria-live="polite">
+      <a class="btn btn-ghost btn-sm" th:href="@{/login}">Log in</a>
+      <a class="btn btn-primary btn-sm" th:href="@{/register}">Sign up</a>
+    </div>
+  </div>
+</header>
+<footer class="site-footer" th:fragment="footer">
+  <div class="container">
+    <span>ShopPulse &middot; portfolio demo, mock payments only</span>
+    <a href="/swagger-ui.html">API docs</a>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js" crossorigin="anonymous" defer></script>
+</footer>
+</body>
+</html>

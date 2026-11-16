@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign up')}"></head>
+<body data-page="register">
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="container narrow">
+  <section class="card auth-card">
+    <h1>Create an account</h1>
+    <form id="register-form" novalidate>
+      <div class="field">
+        <label for="displayName">Display name</label>
+        <input id="displayName" name="displayName" type="text" autocomplete="name" required>
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="new-password" minlength="8" required>
+        <small class="muted">At least 8 characters.</small>
+      </div>
+      <div id="form-msg" class="alert" role="alert" aria-live="assertive" hidden></div>
+      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Sign up</button>
+    </form>
+    <p class="muted">Already registered? <a th:href="@{/login}">Log in</a></p>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/auth.js}"></script>
+</body>
+</html>

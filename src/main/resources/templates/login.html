@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Log in')}"></head>
+<body data-page="login">
+<header th:replace="~{fragments/layout :: nav}"></header>
+<main id="main" class="container narrow">
+  <section class="card auth-card">
+    <h1>Log in</h1>
+    <div class="demo-box" aria-labelledby="demo-title">
+      <p id="demo-title" class="demo-title">Demo accounts (one click)</p>
+      <div class="btn-row">
+        <button type="button" class="btn btn-primary" id="fill-merchant">Fill demo merchant</button>
+        <button type="button" class="btn btn-ghost" id="fill-customer">Fill demo customer</button>
+      </div>
+      <p class="muted small">merchant@shoppulse.dev / merchant123 &middot; customer@shoppulse.dev / customer123</p>
+    </div>
+    <form id="login-form" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+      </div>
+      <div id="form-msg" class="alert" role="alert" aria-live="assertive" hidden></div>
+      <button type="submit" class="btn btn-primary btn-block" id="submit-btn">Log in</button>
+    </form>
+    <p class="muted">No account? <a th:href="@{/register}">Create one</a></p>
+  </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<script type="module" th:src="@{/js/auth.js}"></script>
+</body>
+</html>

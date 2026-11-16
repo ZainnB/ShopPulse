@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: shoppulse
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/shoppulse}
+    username: ${DATABASE_USER:shoppulse}
+    password: ${DATABASE_PASSWORD:shoppulse}
+    hikari:
+      maximum-pool-size: 10
+      pool-name: shoppulse-pool
+
+  jpa:
+    hibernate:
+      ddl-auto: validate          # Flyway owns the schema; Hibernate only checks it
+    open-in-view: false           # no lazy loading in the view layer
+    properties:
+      hibernate:
+        jdbc.batch_size: 50
+        order_inserts: true
+        order_updates: true
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+  thymeleaf:
+    cache: ${THYMELEAF_CACHE:true}
+
+  ai:
+    anthropic:
+      api-key: ${ANTHROPIC_API_KEY:not-set}
+      chat:
+        options:
+          model: ${SHOPPULSE_AI_MODEL:claude-sonnet-5-5}
+          temperature: 0.2
+          max-tokens: 1200
+
+server:
+  port: ${PORT:8080}
+  error:
+    include-message: never
+  shutdown: graceful
+
+shoppulse:
+  jwt:
+    # Override in production. HS256 needs at least 32 bytes.
+    secret: ${JWT_SECRET:change-me-in-production-shoppulse-dev-secret-key-32b}
+    expiry-minutes: ${JWT_EXPIRY_MINUTES:120}
+  seed:
+    # Generates ~6 months of realistic orders on first start when the DB is empty.
+    enabled: ${SEED_ENABLED:true}
+    months-of-history: ${SEED_MONTHS:6}
+    customers: ${SEED_CUSTOMERS:2500}
+  ai:
+    enabled: ${AI_ENABLED:true}
+    # When no API key is present the app falls back to deterministic, rule-based
+    # answers so the demo still works. See AiAvailability.
+    sql:
+      max-rows: 200
+      timeout-seconds: 5
+      readonly-url: ${AI_READONLY_DATABASE_URL:}
+      readonly-user: ${AI_READONLY_DATABASE_USER:shoppulse_ai_ro}
+      readonly-password: ${AI_READONLY_DATABASE_PASSWORD:shoppulse_ai_ro}
+    briefing:
+      # Mondays at 07:00
+      cron: ${BRIEFING_CRON:0 0 7 * * MON}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+  api-docs:
+    path: /v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    com.shoppulse: ${LOG_LEVEL:INFO}
