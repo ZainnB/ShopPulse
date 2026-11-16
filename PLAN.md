@@ -28,7 +28,7 @@ One-line CV description: *"E-commerce platform with an AI-powered merchant analy
 
 ## 3. Tech stack
 
-- **Core:** Java 21, latest stable Spring Boot, Maven
+- **Core:** Java 25, latest stable Spring Boot, Maven
 - **Web/API:** Spring Web (REST), springdoc-openapi (Swagger UI), Bean Validation
 - **Security:** Spring Security, JWT, role-based access
 - **Data:** Spring Data JPA, PostgreSQL, Flyway migrations
@@ -140,7 +140,7 @@ If time is short, ship after day 15. Phase 1 is a complete project on its own.
 
 ## 11. CV bullets (fill in the numbers once built)
 
-- Built an e-commerce platform in Java 21 / Spring Boot with JWT role-based security, PostgreSQL, and Flyway, covering catalogue, cart, checkout, and order management.
+- Built an e-commerce platform in Java 25 / Spring Boot with JWT role-based security, PostgreSQL, and Flyway, covering catalogue, cart, checkout, and order management.
 - Designed a merchant analytics dashboard with natural-language querying (guarded text-to-SQL via Spring AI), automated weekly AI briefings, and statistical anomaly detection.
 - Implemented product recommendations using vector embeddings in pgvector and co-purchase analysis.
 - Wrote integration tests with Testcontainers and set up CI with GitHub Actions; containerised with Docker and deployed a live demo.

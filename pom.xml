@@ -18,7 +18,7 @@
   <description>E-commerce platform with an AI-powered merchant analytics dashboard</description>
 
   <properties>
-    <java.version>21</java.version>
+    <java.version>25</java.version>
     <spring-ai.version>1.1.8</spring-ai.version>
     <jjwt.version>0.12.7</jjwt.version>
     <springdoc.version>2.8.17</springdoc.version>

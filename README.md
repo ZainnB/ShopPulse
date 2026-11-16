@@ -2,7 +2,7 @@
 
 **An e-commerce backend whose product is the merchant side: a dashboard that answers questions about your store in plain English.**
 
-Java 21 · Spring Boot 3.5 · PostgreSQL · Spring AI · Docker
+Java 25 · Spring Boot 3.5 · PostgreSQL · Spring AI · Docker
 
 ```bash
 git clone https://github.com/<you>/ShopPulse.git && cd ShopPulse

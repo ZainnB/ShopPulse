@@ -89,7 +89,10 @@ public class AskYourStoreService {
             return fallback;
         }
         try {
-            List<List<Object>> sample = result.rows().subList(0, Math.min(ROWS_SENT_TO_MODEL, result.rows().size()));
+            // Emails are masked before they leave for the model; the merchant's own
+            // response still carries the real values. See PiiMasker.
+            List<List<Object>> sample = PiiMasker.maskRows(result.columns(),
+                    result.rows().subList(0, Math.min(ROWS_SENT_TO_MODEL, result.rows().size())));
             String payload = "Question: " + question + "\nColumns: " + mapper.writeValueAsString(result.columns())
                     + "\nRows (" + result.rows().size() + " total, first " + sample.size() + " shown): "
                     + mapper.writeValueAsString(sample);
@@ -147,7 +150,7 @@ public class AskYourStoreService {
 
     // ------------------------------------------------------------------ helpers
 
-    private record Chart(String type, String label, String value) {
+    record Chart(String type, String label, String value) {
     }
 
     /** Keeps only chart settings that make sense for the returned columns. */

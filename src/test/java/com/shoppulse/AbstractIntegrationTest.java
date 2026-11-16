@@ -31,9 +31,14 @@ public abstract class AbstractIntegrationTest {
 
     @DynamicPropertySource
     static void properties(DynamicPropertyRegistry registry) {
-        // Tests seed their own fixtures; the demo generator stays off.
-        registry.add("shoppulse.seed.enabled", () -> false);
-        registry.add("spring.ai.anthropic.api-key", () -> "not-set");
+        // Tests run against the real src/main/resources/application.yml — there is deliberately
+        // no test copy of it, because a second application.yml on the test classpath replaces
+        // the real one wholesale and silently hides properties the app needs.
+        // Only the handful of values that must differ for a test are overridden here.
+        registry.add("shoppulse.seed.enabled", () -> false);          // tests seed their own fixtures
+        registry.add("spring.ai.anthropic.api-key", () -> "not-set"); // exercise the fallback path
+        registry.add("shoppulse.jwt.secret", () -> "test-secret-key-for-shoppulse-integration-tests-32b");
         registry.add("spring.jpa.hibernate.ddl-auto", () -> "validate");
+        registry.add("spring.thymeleaf.cache", () -> false);
     }
 }
