@@ -53,7 +53,7 @@ carries `aiGenerated: false` plus a visible "rule-based fallback" badge.
 
 | Variable | Required | Default | Notes |
 |---|---|---|---|
-| `DATABASE_URL` | **yes** | local Postgres | JDBC form: `jdbc:postgresql://host:5432/db` |
+| `DATABASE_URL` | **yes** | local Postgres | Either `jdbc:postgresql://host:5432/db` or a provider URI such as `postgresql://user:pass@host/db?sslmode=require` (converted at startup) |
 | `DATABASE_USER` / `DATABASE_PASSWORD` | yes (unless in the URL) | `shoppulse` | |
 | `JWT_SECRET` | **yes in production** | dev value | ≥ 32 bytes; the app refuses to start on a shorter one |
 | `PORT` | no | `8080` | most platforms inject this |
@@ -80,16 +80,39 @@ docker compose up
 
 Postgres, migrations, six months of seed data, app on `:8080`. No credentials needed.
 
-### Render (the `render.yaml` in this repo)
+### Render + Neon (the fastest permanent free link)
 
-1. Push to GitHub.
-2. Render → New → Blueprint → pick the repo. It reads `render.yaml`, creates the web service
-   and a managed Postgres, wires `DATABASE_URL`, and generates `JWT_SECRET`.
-3. Optional: add an AI key in the dashboard (see section 4).
+**Do not use Render's free Postgres for anything you want to keep.** Per Render's own docs it is
+**deleted 30 days after creation** (14-day grace period to upgrade), with no backups. A portfolio
+link backed by it stops working a month after you build it. `render.yaml` therefore creates only
+the web service, and the database comes from **Neon**, whose free plan is permanent and needs no
+card.
 
-Free-tier Postgres and free-tier web services both sleep when idle, so the first request after
-a quiet period takes a few seconds. Worth saying out loud in an interview before someone clicks
-the link and thinks it's broken.
+**1. Database — Neon (about 2 minutes)**
+   - Sign up at [neon.com](https://neon.com) → create a project named `shoppulse`.
+   - Copy the connection string. It looks like:
+     `postgresql://user:password@ep-something-123.eu-central-1.aws.neon.tech/neondb?sslmode=require`
+   - Keep `?sslmode=require` — Neon refuses plaintext connections.
+
+**2. App — Render (about 10 minutes, mostly the first build)**
+   - Push to GitHub.
+   - Render → **New → Blueprint** → pick the repo. It reads `render.yaml`.
+   - When prompted, paste the Neon string into `DATABASE_URL`. `JWT_SECRET` is generated for you.
+     Leave the AI variables blank unless you want live AI (section 4).
+   - First build takes roughly 5–10 minutes (Maven, inside Docker). Watch the logs for
+     `Seeded demo data ...` and `Started ShopPulseApplication`.
+
+`DATABASE_URL` accepts **either** form — Neon's `postgresql://user:pass@host/db` URI or a
+`jdbc:postgresql://...` URL. The app converts the URI at startup and logs the redacted result,
+so you can paste the provider's string without hand-editing it.
+
+**Two free-tier behaviours to know before you send the link to anyone:**
+- The Render free web service **sleeps after 15 minutes** of no traffic and takes roughly a
+  minute to wake. Open the link yourself a minute before a demo or an interview.
+- Neon's free compute also scales to zero and wakes in about a second.
+
+Neither is a bug, and saying so first — "it's on a free tier, give it a minute to wake" — reads
+much better than someone clicking a seemingly dead link.
 
 ### Railway / Fly.io / anything that takes a container
 
@@ -227,7 +250,10 @@ way to confirm the keys arrived.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| Crash loop at startup, Flyway error | `DATABASE_URL` not in JDBC form | must start `jdbc:postgresql://`; Render's `connectionString` is already correct |
+| Crash loop at startup, Flyway error | bad `DATABASE_URL` | both JDBC and `postgresql://` URI forms are accepted; check the startup log line that prints the converted, redacted URL |
+| `SSL required` / connection refused on Neon | `?sslmode=require` was dropped from the string | keep the full connection string exactly as Neon gives it |
+| Deployed app worked, then died about a month later | you used Render's free Postgres | it is deleted 30 days after creation — use Neon, as `render.yaml` assumes |
+| Out-of-memory during startup on Render free | 512 MB instance | `JAVA_OPTS` in `render.yaml` caps the heap at 70% and uses SerialGC |
 | `Validation failed for query ... schema-validation` | database has an older schema | Hibernate is set to `validate`; let Flyway migrate, never hand-edit tables |
 | App starts, dashboard is empty | `SEED_ENABLED=false`, or the products table is already non-empty | seeding only runs on an empty catalogue, by design, so restarts don't duplicate data |
 | First request takes 20 seconds | free-tier container and database were asleep | expected on free plans; warm it before a demo |

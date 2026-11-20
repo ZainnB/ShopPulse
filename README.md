@@ -203,9 +203,21 @@ mvn verify                   # unit tests + Testcontainers integration tests (ne
 
 ## Deploying
 
-`render.yaml` is included for a one-click Render deploy (web service + managed Postgres).
-Set `JWT_SECRET` and, optionally, `ANTHROPIC_API_KEY`. The image also runs unchanged on Railway,
-Fly.io, or anywhere that takes a container and a `DATABASE_URL`.
+**Free Postgres on [Neon](https://neon.com) + the app on [Render](https://render.com)**, which is
+a permanent free setup. `render.yaml` deliberately does *not* create a Render database: Render's
+free Postgres is deleted 30 days after creation, which would quietly break the live link.
+
+1. Neon → new project → copy the connection string.
+2. Render → New → Blueprint → pick this repo → paste the string into `DATABASE_URL`.
+   `JWT_SECRET` is generated automatically.
+
+`DATABASE_URL` takes either a JDBC URL or a provider URI (`postgresql://user:pass@host/db`);
+the app converts the latter at startup. The free web service sleeps after 15 minutes, so the
+first request after a quiet spell takes about a minute to wake.
+
+Full walkthrough, free-AI provider options and failure modes: **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**.
+The image also runs unchanged on Railway, Fly.io, or anywhere that takes a container and a
+`DATABASE_URL`.
 
 ---
 

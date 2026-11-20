@@ -1,27 +1,35 @@
-# One-click deploy on Render: web service (Docker) + managed Postgres.
-# After the first deploy, set ANTHROPIC_API_KEY in the dashboard to enable live AI;
-# without it the AI endpoints fall back to the built-in query library.
+# One-click deploy on Render (Blueprint).
+#
+# The database is deliberately NOT created here. Render's free Postgres is deleted 30 days
+# after creation, which would silently kill a portfolio link. Instead, point DATABASE_URL at
+# a free Neon project (permanent free tier) and paste its connection string when prompted.
+# DATABASE_URL accepts either a jdbc:postgresql://... URL or Neon's postgresql://user:pass@host/db
+# form — the app converts the latter at startup (see DatabaseUrl).
 services:
   - type: web
     name: shoppulse
     runtime: docker
     plan: free
+    region: frankfurt          # change to the region nearest your Neon project
     healthCheckPath: /actuator/health
+    autoDeploy: true
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: shoppulse-db
-          property: connectionString
+        sync: false            # paste the Neon connection string in the Render dashboard
       - key: JWT_SECRET
-        generateValue: true
+        generateValue: true    # Render generates a strong secret for you
       - key: SEED_ENABLED
-        value: "true"
-      - key: ANTHROPIC_API_KEY
-        sync: false
+        value: "true"          # six months of demo data on first boot
       - key: PORT
         value: "8080"
-
-databases:
-  - name: shoppulse-db
-    plan: free
-    postgresMajorVersion: "16"
+      - key: JAVA_OPTS
+        value: "-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k"
+      # Optional live AI. Leave unset for the rule-based fallback, which is fully working.
+      - key: AI_PROVIDER
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_BASE_URL
+        sync: false
+      - key: OPENAI_MODEL
+        sync: false
