@@ -223,6 +223,16 @@ public class DemoDataSeeder implements ApplicationRunner {
         int flashIdx = specialSaleIndex(start, today, totalDays);
         int dropIdx = (int) (totalDays * 0.55);   // simulated checkout outage: revenue collapses
         int spikeIdx = (int) (totalDays * 0.80);  // simulated viral mention: revenue surges
+        // Two more anomalies inside the last 30 days. The dashboard opens on a 30-day window,
+        // and anomaly detection is the headline feature: if the only planted anomalies were
+        // months back, a reviewer's first screen would read "no anomalies detected".
+        // Placement here is deliberate and is a property of the detector, not a guess.
+        // A z-score is measured against the mean and standard deviation of the trailing 28 days,
+        // so one extreme day inside that window inflates sigma and can mask a later anomaly.
+        // The outage is therefore placed far enough after the sale day that the sale has left
+        // its trailing window, which keeps its z-score honest.
+        int recentDropIdx = Math.max(0, totalDays - 6);
+        int recentSpikeIdx = Math.max(0, totalDays - 1);
 
         // ---- orders ------------------------------------------------------------------
         List<PendingOrder> pending = new ArrayList<>();
@@ -236,10 +246,10 @@ public class DemoDataSeeder implements ApplicationRunner {
                 mean *= 1.7;
             }
             int orders;
-            if (d == dropIdx) {
+            if (d == dropIdx || d == recentDropIdx) {
                 orders = rnd.nextInt(2);
             } else {
-                if (d == spikeIdx) {
+                if (d == spikeIdx || d == recentSpikeIdx) {
                     mean *= 4.5;
                 }
                 orders = (int) Math.max(0, Math.round(mean + Math.sqrt(mean) * 0.9 * rnd.nextGaussian()));

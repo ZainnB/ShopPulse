@@ -48,7 +48,9 @@ final class RuleBasedBriefing {
 
         String products = s.topProducts().isEmpty() ? "no products sold" : String.join(", ",
                 s.topProducts().stream().map(p -> p.name() + " (" + money(p.revenue()) + ")").toList());
-        String repeat = s.repeatRatePercent() == null ? "" : " The repeat customer rate was " + s.repeatRatePercent() + "%.";
+        String repeat = s.returningBuyerSharePercent() == null ? ""
+                : " Of the customers who bought this week, " + s.returningBuyerSharePercent()
+                  + "% have ordered more than once before.";
         bullet(sb, "Top products: " + products + "." + repeat,
                 "Suggested action: send a thank-you offer to repeat buyers and make sure the top products stay in stock.");
         return sb.toString().trim();

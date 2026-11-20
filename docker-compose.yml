@@ -24,8 +24,14 @@ services:
       DATABASE_URL: jdbc:postgresql://db:5432/shoppulse
       DATABASE_USER: shoppulse
       DATABASE_PASSWORD: shoppulse
-      # Optional: without a key the AI features fall back to deterministic answers.
+      # All optional. With no key at all the AI features answer from the built-in
+      # query library and label themselves "rule-based". Set ANTHROPIC_API_KEY, or
+      # point the OpenAI-compatible client at a free tier (see docs/DEPLOYMENT.md).
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-not-set}
+      AI_PROVIDER: ${AI_PROVIDER:-auto}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-not-set}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
       SEED_ENABLED: "true"
     ports:
       - "8080:8080"

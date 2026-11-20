@@ -5,7 +5,7 @@
 Java 25 · Spring Boot 3.5 · PostgreSQL · Spring AI · Docker
 
 ```bash
-git clone https://github.com/<you>/ShopPulse.git && cd ShopPulse
+git clone https://github.com/ZainnB/ShopPulse.git && cd ShopPulse
 docker compose up
 # → http://localhost:8080        storefront
 # → http://localhost:8080/merchant/dashboard   merchant dashboard
@@ -14,7 +14,9 @@ docker compose up
 
 Six months of realistic sales data are generated on first start, so the dashboard is full
 the moment it loads. **No API key is required** — without one the AI features fall back to a
-built-in query library and label themselves as doing so.
+built-in query library and label themselves as doing so. If you want live AI for free, the
+project runs on Groq, Gemini, OpenRouter or a local Ollama by changing three environment
+variables: see [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#4-running-the-ai-features-without-paying).
 
 | Demo account | Password | Role |
 |---|---|---|
@@ -177,7 +179,9 @@ mvn verify                   # unit tests + Testcontainers integration tests (ne
 |---|---|---|
 | `DATABASE_URL` / `DATABASE_USER` / `DATABASE_PASSWORD` | local Postgres | main datasource |
 | `ANTHROPIC_API_KEY` | `not-set` | enables live AI; absent → rule-based fallback |
-| `SHOPPULSE_AI_MODEL` | `claude-sonnet-5-5` | chat model id |
+| `SHOPPULSE_AI_MODEL` | `claude-sonnet-5-5` | Anthropic chat model id |
+| `AI_PROVIDER` | `auto` | `auto` \| `anthropic` \| `openai` \| `none` |
+| `OPENAI_API_KEY` / `OPENAI_BASE_URL` / `OPENAI_MODEL` | `not-set` | any OpenAI-compatible endpoint (Groq, Gemini, OpenRouter, Ollama) |
 | `JWT_SECRET` | dev value | **override in production**, ≥ 32 bytes |
 | `SEED_ENABLED` / `SEED_MONTHS` / `SEED_CUSTOMERS` | `true` / `6` / `2500` | demo data generator |
 | `AI_READONLY_DATABASE_URL` | empty | optional least-privilege connection for AI SQL |
@@ -192,6 +196,7 @@ mvn verify                   # unit tests + Testcontainers integration tests (ne
   (totals, empty cart, oversell), JWT (round-trip, tampering, expiry, weak secret).
 - **Integration tests** run against a real PostgreSQL via Testcontainers — Flyway migrations, the
   views, and the full HTTP stack including the security filter chain.
+- **159 tests in total**, all green on JDK 25.
 - **CI** (GitHub Actions) runs `mvn verify` and builds the Docker image on every push.
 
 ---
@@ -211,6 +216,16 @@ similar-product lookups, co-occurrence over `order_items` for "bought together",
 vector for "for you", falling back to category best-sellers on cold start. The merchant dashboard
 gets a tile for recommendation click-through and attributed revenue, which ties it back to the
 rest of the product.
+
+---
+
+## Documentation
+
+| Document | What's in it |
+|---|---|
+| [LEARNING.md](LEARNING.md) | Every concept the project uses, why each choice was made, the known limitations, and mock interview questions |
+| [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) | Deployment flow chart, configuration reference, free AI provider setups, failure modes |
+| [docs/DEMO.md](docs/DEMO.md) | A 30-second demo script with the exact questions to type |
 
 ---
 

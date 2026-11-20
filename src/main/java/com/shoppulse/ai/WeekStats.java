@@ -13,7 +13,7 @@ import java.util.Map;
  */
 record WeekStats(String weekStart, String weekEnd, BigDecimal revenue, BigDecimal previousRevenue,
                  long orders, long previousOrders, List<CategoryChange> categories,
-                 List<ProductRow> topProducts, BigDecimal repeatRatePercent) {
+                 List<ProductRow> topProducts, BigDecimal returningBuyerSharePercent) {
 
     record CategoryChange(String name, BigDecimal revenue, BigDecimal previousRevenue, BigDecimal changePercent) {
     }
@@ -65,7 +65,11 @@ record WeekStats(String weekStart, String weekEnd, BigDecimal revenue, BigDecima
         m.put("previousWeekOrders", previousOrders);
         m.put("averageOrderValue", averageOrderValue());
         m.put("previousWeekAverageOrderValue", previousAverageOrderValue());
-        m.put("repeatCustomerRatePercent", repeatRatePercent);
+        // Deliberately NOT called "repeat customer rate": the dashboard KPI of that name
+        // counts customers with 2+ orders INSIDE the window, while this counts buyers
+        // active this week who have ordered more than once EVER. Different questions,
+        // so they get different names and never disagree in the same sentence.
+        m.put("returningBuyerSharePercent", returningBuyerSharePercent);
         List<Map<String, Object>> cats = new ArrayList<>();
         for (CategoryChange c : categories) {
             Map<String, Object> cm = new LinkedHashMap<>();

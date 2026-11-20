@@ -12,6 +12,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.net.URI;
 import java.time.Instant;
@@ -73,6 +75,17 @@ public class ApiExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ProblemDetail handleAuthentication(AuthenticationException ex, HttpServletRequest request) {
         return problem(HttpStatus.UNAUTHORIZED, "Unauthorized", "Invalid credentials", "unauthorized", request);
+    }
+
+    /**
+     * A URL that matches no handler or static resource is a 404, not a server fault.
+     * Without this, the catch-all below turns every mistyped path — including the
+     * browser's automatic /favicon.ico probe — into a 500 and an error in the log.
+     */
+    @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
+    public ProblemDetail handleNoHandler(Exception ex, HttpServletRequest request) {
+        return problem(HttpStatus.NOT_FOUND, "Not found",
+                "No resource at " + request.getRequestURI(), "not-found", request);
     }
 
     @ExceptionHandler(Exception.class)

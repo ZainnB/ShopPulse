@@ -39,7 +39,7 @@ public class WeeklyBriefingService {
             You receive the week's numbers as JSON. Write exactly 5 bullets in plain English.
             Each bullet states one insight grounded in the numbers and gives one concrete suggested action.
             Cover: overall revenue and orders, average order value, the best and worst category week on week,
-            the top products, and the repeat customer rate. Use only the numbers provided; never invent figures.
+            the top products, and the share of this week's buyers who are returning customers. Use only the numbers provided; never invent figures.
             Respond with ONLY a JSON object: {"bullets": [{"insight": "...", "action": "..."}, ...]} with exactly 5 items.
             """;
 
@@ -153,6 +153,8 @@ public class WeeklyBriefingService {
                 range(weekStart, weekEnd),
                 (rs, i) -> new WeekStats.ProductRow(rs.getString("product_name"), rs.getBigDecimal("revenue"), rs.getLong("units")));
 
+        // Share of this week's buyers who have ordered more than once in their lifetime.
+        // This is NOT the dashboard's "repeat customer rate", which is window-scoped; see WeekStats.
         BigDecimal repeat = jdbc.query("""
                         SELECT COUNT(*) AS buyers, COUNT(*) FILTER (WHERE order_count > 1) AS repeaters
                         FROM v_customer_summary WHERE last_order_date BETWEEN :from AND :to""",

@@ -1,10 +1,12 @@
 package com.shoppulse.ai;
 
+import org.springframework.ai.anthropic.AnthropicChatModel;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Component;
 
@@ -17,10 +19,29 @@ import java.util.List;
 @Component
 public class ChatGateway {
 
-    private final ObjectProvider<ChatModel> chatModel;
+    private final ObjectProvider<AnthropicChatModel> anthropic;
+    private final ObjectProvider<OpenAiChatModel> openAi;
+    private final AiAvailability availability;
 
-    public ChatGateway(ObjectProvider<ChatModel> chatModel) {
-        this.chatModel = chatModel;
+    /**
+     * Both starters are on the classpath, so each contributes its own ChatModel bean. They are
+     * injected as concrete types rather than as {@code ChatModel} to avoid an ambiguous-bean
+     * failure, and the active one is chosen by {@link AiAvailability}.
+     */
+    public ChatGateway(ObjectProvider<AnthropicChatModel> anthropic,
+                       ObjectProvider<OpenAiChatModel> openAi,
+                       AiAvailability availability) {
+        this.anthropic = anthropic;
+        this.openAi = openAi;
+        this.availability = availability;
+    }
+
+    private ChatModel activeModel() {
+        return switch (availability.provider()) {
+            case ANTHROPIC -> anthropic.getIfAvailable();
+            case OPENAI -> openAi.getIfAvailable();
+            case NONE -> null;
+        };
     }
 
     /** Raised for any model failure so callers can fall back without caring about the cause. */
@@ -33,7 +54,7 @@ public class ChatGateway {
     /** Sends a system and a user message and returns the model's text. */
     public String call(String system, String user) {
         try {
-            ChatModel model = chatModel.getIfAvailable();
+            ChatModel model = activeModel();
             if (model == null) {
                 throw new IllegalStateException("no ChatModel bean is configured");
             }

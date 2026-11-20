@@ -45,14 +45,42 @@ class SupportClassesTest {
 
     @Test
     void availabilityRequiresEnabledFlagAndRealKey() {
-        AiProperties on = new AiProperties(true, SQL, new AiProperties.Briefing("x"));
-        AiProperties off = new AiProperties(false, SQL, new AiProperties.Briefing("x"));
-        assertFalse(new AiAvailability(on, "not-set").isLive());
-        assertFalse(new AiAvailability(on, "").isLive());
-        assertFalse(new AiAvailability(on, "  ").isLive());
-        assertFalse(new AiAvailability(on, null).isLive());
-        assertFalse(new AiAvailability(off, "sk-real").isLive());
-        assertTrue(new AiAvailability(on, "sk-real").isLive());
+        AiProperties on = new AiProperties(true, "auto", SQL, new AiProperties.Briefing("x"));
+        AiProperties off = new AiProperties(false, "auto", SQL, new AiProperties.Briefing("x"));
+        assertFalse(new AiAvailability(on, "not-set", "not-set").isLive());
+        assertFalse(new AiAvailability(on, "", "").isLive());
+        assertFalse(new AiAvailability(on, "  ", "  ").isLive());
+        assertFalse(new AiAvailability(on, null, null).isLive());
+        assertFalse(new AiAvailability(off, "sk-real", "not-set").isLive());
+        assertTrue(new AiAvailability(on, "sk-real", "not-set").isLive());
+    }
+
+    @Test
+    void providerResolutionPrefersAnthropicButFallsBackToAnyOpenAiCompatibleKey() {
+        // auto: whichever key exists, Anthropic first
+        assertEquals(AiAvailability.Provider.ANTHROPIC,
+                AiAvailability.resolve(true, "auto", "sk-ant", "gsk-groq"));
+        assertEquals(AiAvailability.Provider.OPENAI,
+                AiAvailability.resolve(true, "auto", "not-set", "gsk-groq"));
+        assertEquals(AiAvailability.Provider.NONE,
+                AiAvailability.resolve(true, "auto", "not-set", "not-set"));
+
+        // the free-tier aliases all mean "the OpenAI wire protocol"
+        for (String alias : new String[]{"openai", "groq", "gemini", "openrouter", "ollama"}) {
+            assertEquals(AiAvailability.Provider.OPENAI,
+                    AiAvailability.resolve(true, alias, "not-set", "gsk-groq"), alias);
+            assertEquals(AiAvailability.Provider.NONE,
+                    AiAvailability.resolve(true, alias, "sk-ant", "not-set"),
+                    alias + " must not silently use the Anthropic key");
+        }
+
+        // an explicit choice is honoured, and "none" forces the rule-based path
+        assertEquals(AiAvailability.Provider.ANTHROPIC,
+                AiAvailability.resolve(true, "anthropic", "sk-ant", "gsk-groq"));
+        assertEquals(AiAvailability.Provider.NONE,
+                AiAvailability.resolve(true, "none", "sk-ant", "gsk-groq"));
+        assertEquals(AiAvailability.Provider.NONE,
+                AiAvailability.resolve(false, "anthropic", "sk-ant", "gsk-groq"));
     }
 
     @Test

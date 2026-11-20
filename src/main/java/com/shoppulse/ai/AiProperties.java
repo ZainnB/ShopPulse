@@ -9,6 +9,7 @@ import org.springframework.boot.context.properties.bind.DefaultValue;
 @ConfigurationProperties(prefix = "shoppulse.ai")
 public record AiProperties(
         @DefaultValue("true") boolean enabled,
+        @DefaultValue("auto") String provider,
         @DefaultValue Sql sql,
         @DefaultValue Briefing briefing) {
 

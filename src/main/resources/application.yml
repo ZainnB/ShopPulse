@@ -35,6 +35,20 @@ spring:
           model: ${SHOPPULSE_AI_MODEL:claude-sonnet-5-5}
           temperature: 0.2
           max-tokens: 1200
+    # Any OpenAI-compatible endpoint. Only these three values change between providers,
+    # which is how ShopPulse runs on a free tier. Examples in docs/DEPLOYMENT.md:
+    #   Groq       https://api.groq.com/openai/v1
+    #   Gemini     https://generativelanguage.googleapis.com/v1beta/openai
+    #   OpenRouter https://openrouter.ai/api/v1
+    #   Ollama     http://localhost:11434/v1   (local, no key, no quota)
+    openai:
+      api-key: ${OPENAI_API_KEY:not-set}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      chat:
+        options:
+          model: ${OPENAI_MODEL:gpt-4o-mini}
+          temperature: 0.2
+          max-tokens: 1200
 
 server:
   port: ${PORT:8080}
@@ -54,6 +68,9 @@ shoppulse:
     customers: ${SEED_CUSTOMERS:2500}
   ai:
     enabled: ${AI_ENABLED:true}
+    # auto = use whichever provider has a key (Anthropic first); or force
+    # anthropic | openai | none. "openai" covers Groq, Gemini, OpenRouter and Ollama.
+    provider: ${AI_PROVIDER:auto}
     # When no API key is present the app falls back to deterministic, rule-based
     # answers so the demo still works. See AiAvailability.
     sql:

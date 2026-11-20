@@ -123,6 +123,15 @@
       <groupId>org.springframework.ai</groupId>
       <artifactId>spring-ai-starter-model-anthropic</artifactId>
     </dependency>
+    <!--
+      The OpenAI starter is here for its wire protocol, not for OpenAI: Groq, Google Gemini,
+      OpenRouter, Cerebras and a local Ollama all expose an OpenAI-compatible endpoint, so
+      overriding spring.ai.openai.base-url points ShopPulse at any of them, including free tiers.
+    -->
+    <dependency>
+      <groupId>org.springframework.ai</groupId>
+      <artifactId>spring-ai-starter-model-openai</artifactId>
+    </dependency>
 
     <!-- Test -->
     <dependency>
